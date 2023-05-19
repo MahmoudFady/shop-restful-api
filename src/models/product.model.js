@@ -34,7 +34,7 @@ const productSchema = new Schema(
       default: null,
     },
     category: { type: Schema.Types.ObjectId, ref: "Category" },
-    subCategory: { type: Schema.Types.ObjectId, ref: "SubCategory" },
+    subCategory: { type: String, required: true, default: "" },
   },
   { timeseries: true, toJSON: { virtual: true } } // error
 );
