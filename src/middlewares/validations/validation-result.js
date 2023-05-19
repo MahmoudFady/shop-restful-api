@@ -1,5 +1,5 @@
 const { validationResult } = require("express-validator");
-const errUtil = require("../../../core/utils/error.util");
+const errUtil = require("../../utils/error.util");
 module.exports = (request, response, next) => {
   let errors = validationResult(request).errors;
   if (errors.length != 0) {
@@ -7,7 +7,6 @@ module.exports = (request, response, next) => {
       (current, err) => current + err.msg + " , ",
       " "
     );
-    const err = errUtil.getResErr(errMsgs, 442);
-    next(err);
+    next(errUtil(errMsgs, 442));
   } else next();
 };
