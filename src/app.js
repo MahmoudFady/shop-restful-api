@@ -1,0 +1,29 @@
+// Built in packages
+const express = require ('express');
+const morgan = require ('morgan');
+const cors = require ('cors');
+const app = express ();
+// Start app routes
+const userRoutes = require ('./routes/user.routes');
+const cartRoutes = require ('./routes/cart.routes');
+const orderRoutes = require ('./routes/order.routes');
+const orderItemsRoutes = require ('./routes/orderItem.routes');
+const shippingRoutes = require ('./routes/shipping.routes');
+const productRoutes = require ('./routes/product.routes');
+const categoryRoutes = require ('./routes/category.routes');
+const notFounMw = require ('./middlewares/not-found.mw');
+const errMw = require ('./middlewares/error.mw');
+app.use (express.json ());
+app.use (express.urlencoded ({extended: true}));
+app.use (morgan ('dev'));
+app.use (cors ());
+app.use (userRoutes);
+app.use (categoryRoutes);
+app.use (productRoutes);
+app.use (cartRoutes);
+app.use (orderRoutes);
+app.use (orderItemsRoutes);
+app.use (shippingRoutes);
+app.use (notFounMw);
+app.use (errMw);
+module.exports = app;
