@@ -25,14 +25,14 @@ exports.createOne = async (req, res, next) => {
   const image = req.files.image[0];
   try {
     if (!image) {
-      getResErr("Not valid image.", 422);
+      throw getResErr("Not valid image.", 422);
     } else {
       newProduct.image = await uploadImage(image.path);
       fs.unlink(path.join(image.path));
     }
     const thumbnails = files.thumbnails;
     if (!thumbnails) {
-      getResErr("Not valid thumbnails.", 422);
+      throw getResErr("Not valid thumbnails.", 422);
     } else {
       newProduct.thumbnails = [];
       for (thumbnail of thumbnails) {
