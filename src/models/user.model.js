@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const passwordUtil = require("../utils/password.util");
 const nameSchema = new mongoose.Schema(
   {
     first: {
@@ -66,5 +66,10 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+userSchema.pre("save", async function () {
+  if (this.isNew || this.isModified("password"))
+    this.password = await passwordUtil.hash(this.password);
 
+  next();
+});
 module.exports = mongoose.model("User", userSchema);

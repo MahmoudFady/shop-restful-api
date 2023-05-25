@@ -6,10 +6,12 @@ module.exports.signin = async (req, res, next) => {
   const { email, password } = req.params;
   try {
     const user = await userModel.findOne({ email });
-    if (!user) throw errUtil("user does not exist", 404);
+    const errMsg = false;
+    if (!user) errMsg = "email doesn't exist";
     if (!passwordUtil.compare(password, user.password))
-      throw errUtil("user does not exist", 404);
-    const token = tokenUtil.create({ id: user._id });
+      errMsg = "wrong password";
+    if (errMsg) throw errUtil(errMsg, 404);
+    const token = tokenUtil.create({ id: user._id, role: user.role });
     res.status(200).json({
       message: "signin success",
       user,
@@ -41,6 +43,18 @@ module.exports.getOne = async (req, res, next) => {
     const user = await userModel.findById(id);
     if (!user) throw errUtil("user does not exist", 404);
     res.status(200).json({ message: "get user by id", user });
+  } catch (err) {
+    next(err);
+  }
+};
+module.exports.getByRole = async (req, res, next) => {
+  try {
+    const { role } = req.params;
+    const users = await userModel.find({ role });
+    res.status(200).json({
+      message: "user users by role : " + role,
+      users,
+    });
   } catch (err) {
     next(err);
   }
