@@ -58,8 +58,9 @@ const userSchema = new mongoose.Schema(
       default: "https://examples.com/images/mahmoud.jpg",
     },
     role: {
-      type: Number,
-      default: 0,
+      type: String,
+      enum: ["user", "admin", "seller"],
+      default: "user",
     },
     address: addressSchema,
   },
