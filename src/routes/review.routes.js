@@ -13,15 +13,15 @@ const validationResult = require("../middlewares/validations/validation-result")
 router
   .route("/")
   .get(reviewController.getReviews)
-  .post(validationResult, addReviewValidator, reviewController.addReview);
+  .post(addReviewValidator,validationResult, reviewController.addReview);
 
 router
   .route("/:id")
-  .get(validationResult, getReviewValidator, reviewController.getReview)
-  .patch(validationResult, updateReviewValidator, reviewController.updateReview)
+  .get(getReviewValidator,validationResult,  reviewController.getReview)
+  .patch( updateReviewValidator, validationResult,reviewController.updateReview)
   .delete(
-    validationResult,
-    deleteReviewValidator,
+    
+    deleteReviewValidator,validationResult,
     reviewController.deleteReview
   );
 
