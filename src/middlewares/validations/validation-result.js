@@ -7,6 +7,6 @@ module.exports = (request, response, next) => {
       (current, err) => current + err.msg + " , ",
       " "
     );
-    next(errUtil(errMsgs, 442));
+    next(errUtil(errMsgs, 422));
   } else next();
 };
