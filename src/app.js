@@ -11,6 +11,7 @@ const ReviewRoutes = require("./routes/review.routes");
 const couponRoutes = require("./routes/coupon.routes");
 const notFounMw = require("./middlewares/not-found.mw");
 
+app.use("/images", express.static("images/"));
 const errMw = require("./middlewares/error.mw");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

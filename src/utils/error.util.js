@@ -1,6 +1,6 @@
-module.exports = (msg, code) => {
+module.exports = (msg, status) => {
   message = message || "internal server error";
   const err = new Error(message);
-  err.code = code || 5000;
+  err.status = status || 5000;
   return err;
 };
