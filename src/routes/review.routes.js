@@ -12,7 +12,7 @@ const validationResult = require("../middlewares/validations/validation-result")
 
 router
   .route("/")
-  .get(reviewController.getAllReviews)
+  .get(checkAuth, checkAuth.isAdmin, reviewController.getAllReviews)
   .post(
     checkAuth,
     validationResult,
@@ -22,8 +22,14 @@ router
 router.route("/product/:id").get(reviewController.getProductReviews);
 router
   .route("/:id")
-  .patch(validationResult, updateReviewValidator, reviewController.updateReview)
+  .patch(
+    checkAuth,
+    validationResult,
+    updateReviewValidator,
+    reviewController.updateReview
+  )
   .delete(
+    checkAuth,
     validationResult,
     deleteReviewValidator,
     reviewController.deleteReview
