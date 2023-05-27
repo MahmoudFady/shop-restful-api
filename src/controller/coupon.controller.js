@@ -1,70 +1,59 @@
-const Coupon = require("../models/coupon.model");
-
-exports.addCoupon = async (request, response, next) => {
+const couponModel = require("../models/coupon.model");
+const errUtil = require("../utils/error.util");
+exports.addCoupon = async (req, res, next) => {
   try {
-    const coupon = Coupon.create(request.body);
-    response.status(200).json({
-      data: {
-        coupon,
-      },
+    const coupon = await new create(req.body).save();
+    res.status(200).json({
+      message: "cupon created ",
+      coupon,
     });
   } catch (err) {
     next(err);
   }
 };
-exports.getCoupons = async (request, response, next) => {
+exports.getCoupons = async (req, res, next) => {
   try {
-    const coupons = Coupon.find({});
-    response.status(200).json({
-      data: {
-        coupons,
-      },
+    const coupons = await couponModel.find();
+    res.status(200).json({
+      message: "get all cupons",
+      coupons,
     });
   } catch (err) {
     next(err);
   }
 };
-exports.getCoupon = async (request, response, next) => {
+exports.getCoupon = async (req, res, next) => {
   try {
-    const coupon = Coupon.findById(request.params.id);
-    if (!coupon) {
-      throw new Error("invalid id for review");
-    }
-    response.status(200).json({
-      data: {
-        coupon,
-      },
+    const coupon = await couponModel.findById(req.params.id);
+    if (!coupon) throw errUtil("cupon does not exist", 404);
+    res.status(200).json({
+      message: "get coupon by it id",
+      coupon,
     });
   } catch (err) {
     next(err);
   }
 };
-exports.updateCoupon = async (request, response, next) => {
+exports.updateCoupon = async (req, res, next) => {
   try {
-    const coupon = Coupon.findByIdAndUpdate(request.params.id, request.body, {
+    const coupon = couponModel.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    if (!review) {
-      throw new Error("invalid id for review");
-    }
-    response.status(200).json({
-      data: {
-        coupon,
-      },
+    res.status(200).json({
+      message: "coupon updated",
+      coupon,
     });
   } catch (err) {
     next(err);
   }
 };
 
-exports.deleteCoupon = async (request, response, next) => {
+exports.deleteCoupon = async (req, res, next) => {
   try {
-    const coupon = Coupon.findByIdAndDelete(request.params.id);
-    if (!coupon) {
-      throw new Error("invalid id for review");
-    }
-    response.status(200).json({
-      message: "deleted",
+    const coupon = couponModel.findByIdAndDelete(req.params.id);
+    res.status(200).json({
+      message: "coupon deleted",
+      id: coupon._id,
     });
   } catch (err) {
     next(err);
