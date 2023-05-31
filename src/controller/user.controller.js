@@ -2,11 +2,22 @@ const userModel = require("../models/user.model");
 const passwordUtil = require("../utils/password.util");
 const tokenUtil = require("../utils/token.util");
 const errUtil = require("../utils/error.util");
+module.exports.getAll = async (req, res, next) => {
+  try {
+    const users = await userModel.find();
+    res.status(200).json({
+      message: "get all users",
+      users,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 module.exports.signin = async (req, res, next) => {
   const { email, password } = req.params;
   try {
     const user = await userModel.findOne({ email });
-    const errMsg = false;
+    const errMsg = "";
     if (!user) errMsg = "email doesn't exist";
     if (!passwordUtil.compare(password, user.password))
       errMsg = "wrong password";
