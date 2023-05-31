@@ -23,7 +23,10 @@ const productSchema = new Schema(
       index: true,
     },
     stockCount: { type: Number, required: true, min: 0 },
-    discount: discountSchema,
+    discount: {
+      type: discountSchema,
+      default: null,
+    },
     thumbnails: [String],
     image: String,
     reviews: {

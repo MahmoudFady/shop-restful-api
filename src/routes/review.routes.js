@@ -11,7 +11,7 @@ const reviewController = require("../controller/review.controller");
 const validationResult = require("../middlewares/validations/validation-result");
 
 router
-  .route("/")
+  .route("/reviews")
   .get(checkAuth, checkAuth.isAdmin, reviewController.getAllReviews)
   .post(
     checkAuth,
@@ -19,9 +19,9 @@ router
     addReviewValidator,
     reviewController.addReview
   );
-router.route("/product/:id").get(reviewController.getProductReviews);
+router.route("/reviews/product/:id").get(reviewController.getProductReviews);
 router
-  .route("/:id")
+  .route("/reviews/:id")
   .patch(
     checkAuth,
     validationResult,

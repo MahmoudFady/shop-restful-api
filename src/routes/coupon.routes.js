@@ -12,12 +12,12 @@ const {
 const couponController = require("../controller/coupon.controller");
 
 router
-  .route("/")
+  .route("/coupon")
   .get(couponController.getCoupons)
   .post(addCouponValidator, validationResult, couponController.addCoupon);
 
 router
-  .route("/:id")
+  .route("/coupon/:id")
   .get(getCouponValidator, validationResult, couponController.getCoupon)
   .patch(updateCouponValidator, validationResult, couponController.updateCoupon)
   .delete(
