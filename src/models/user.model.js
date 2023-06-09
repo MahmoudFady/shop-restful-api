@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: true,
+      immutable: true,
     },
     phone: {
       type: Number,
@@ -66,7 +67,7 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-userSchema.pre("save", async function () {
+userSchema.pre("save", async function (next) {
   if (this.isNew || this.isModified("password"))
     this.password = await passwordUtil.hash(this.password);
 

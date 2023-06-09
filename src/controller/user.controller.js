@@ -4,7 +4,7 @@ const tokenUtil = require("../utils/token.util");
 const errUtil = require("../utils/error.util");
 module.exports.getAll = async (req, res, next) => {
   try {
-    const users = await userModel.find();
+    const users = await userModel.find().select("image name email phone role");
     res.status(200).json({
       message: "get all users",
       users,
@@ -14,14 +14,12 @@ module.exports.getAll = async (req, res, next) => {
   }
 };
 module.exports.signin = async (req, res, next) => {
-  const { email, password } = req.params;
+  const { email, password } = req.body;
   try {
     const user = await userModel.findOne({ email });
-    const errMsg = "";
-    if (!user) errMsg = "email doesn't exist";
-    if (!passwordUtil.compare(password, user.password))
-      errMsg = "wrong password";
-    if (errMsg) throw errUtil(errMsg, 404);
+    if (!user) throw errUtil("email does not exist", 404);
+    if (!(await passwordUtil.compare(password, user.password)))
+      throw errUtil("wrong password", 409);
     const token = tokenUtil.create({ id: user._id, role: user.role });
     res.status(200).json({
       message: "signin success",
@@ -36,9 +34,9 @@ module.exports.signup = async (req, res, next) => {
   try {
     const { email, phone } = req.body;
     const users = await userModel.find({ $or: [{ phone }, { email }] });
-    if (users.length === 0) throw errUtil("user already exist ", 409);
+    if (users.length > 0) throw errUtil("user already exist ", 409);
     const user = await userModel(req.body).save();
-    const token = tokenUtil({ id: user._id });
+    const token = tokenUtil.create({ id: user._id });
     res.status(200).json({
       message: "signup success",
       user,
@@ -51,7 +49,7 @@ module.exports.signup = async (req, res, next) => {
 module.exports.getOne = async (req, res, next) => {
   try {
     const id = req.params["id"];
-    const user = await userModel.findById(id);
+    const user = await userModel.findById(id).select("-password");
     if (!user) throw errUtil("user does not exist", 404);
     res.status(200).json({ message: "get user by id", user });
   } catch (err) {
@@ -61,7 +59,9 @@ module.exports.getOne = async (req, res, next) => {
 module.exports.getByRole = async (req, res, next) => {
   try {
     const { role } = req.params;
-    const users = await userModel.find({ role });
+    const users = await userModel
+      .find({ role })
+      .select("image name email phone role");
     res.status(200).json({
       message: "user users by role : " + role,
       users,
