@@ -43,8 +43,11 @@ exports.createOne = async (req, res, next) => {
 
 exports.updateOne = async (req, res, next) => {
   try {
-    const result = await new ProductModel(product).save();
-    if (result.modifiedCount === 1) {
+    const result = await ProductModel.updateOne(
+      { _id: req.params.id },
+      req.body
+    );
+    if (result.matchedCount === 1 && result.modifiedCount === 1) {
       res.status(201).json({ message: "product updated" });
     } else {
       throw new Error("Didn't modify!!");
@@ -56,7 +59,9 @@ exports.updateOne = async (req, res, next) => {
 
 exports.getProductDetails = async (req, res, next) => {
   try {
-    const product = await ProductModel.findOne({ _id }).populate("reviews");
+    const product = await ProductModel.findOne({ _id: req.params.id }).populate(
+      "reviews"
+    );
     res.status(200).json({ message: "ok", product });
   } catch (error) {
     next(error);
@@ -84,7 +89,7 @@ exports.getProductsInCategory = async (req, res, next) => {
       .skip((req.params.page - 1) * productsPerPage)
       .limit(productsPerPage)
       .select({ title: 1, description: 1, price: 1, discount: 1, image: 1 });
-    res.status(200).json({ message: "ok", products });
+    res.status(200).json({ page: req.params.page, products });
   } catch (error) {
     next(error);
   }
@@ -100,7 +105,7 @@ exports.getProductsInCategoryPriceAsc = async (req, res, next) => {
       .skip((req.params.page - 1) * productsPerPage)
       .limit(productsPerPage)
       .select({ title: 1, description: 1, price: 1, discount: 1, image: 1 });
-    res.status(200).json({ message: "ok", products });
+    res.status(200).json({ page: req.params.page, products });
   } catch (error) {
     next(error);
   }
@@ -116,7 +121,7 @@ exports.getProductsInCategoryPriceDesc = async (req, res, next) => {
       .skip((req.params.page - 1) * productsPerPage)
       .limit(productsPerPage)
       .select({ title: 1, description: 1, price: 1, discount: 1, image: 1 });
-    res.status(200).json({ message: "ok", products });
+    res.status(200).json({ page: req.params.page, products });
   } catch (error) {
     next(error);
   }
@@ -143,7 +148,7 @@ exports.getProductsInSubCategory = async (req, res, next) => {
       .skip((req.params.page - 1) * productsPerPage)
       .limit(productsPerPage)
       .select({ title: 1, description: 1, price: 1, discount: 1, image: 1 });
-    res.status(200).json({ message: "ok", products });
+    res.status(200).json({ page: req.params.page, products });
   } catch (error) {
     next(error);
   }
@@ -159,7 +164,7 @@ exports.getProductsInSubCategoryPriceAsc = async (req, res, next) => {
       .skip((req.params.page - 1) * productsPerPage)
       .limit(productsPerPage)
       .select({ title: 1, description: 1, price: 1, discount: 1, image: 1 });
-    res.status(200).json({ message: "ok", products });
+    res.status(200).json({ page: req.params.page, products });
   } catch (error) {
     next(error);
   }
@@ -175,7 +180,7 @@ exports.getProductsInSubCategoryPriceDesc = async (req, res, next) => {
       .skip((req.params.page - 1) * productsPerPage)
       .limit(productsPerPage)
       .select({ title: 1, description: 1, price: 1, discount: 1, image: 1 });
-    res.status(200).json({ message: "ok", products });
+    res.status(200).json({ page: req.params.page, products });
   } catch (error) {
     next(error);
   }
