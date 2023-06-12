@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const discountSchema = new Schema(
   {
-    percentage: { type: Number, default: 0, min: 0, max: 100 },
+    percentage: { type: Number, default: 0, min: 1, max: 100 },
     expireDate: Date,
   },
   { _id: false }
@@ -12,6 +12,10 @@ const productSchema = new Schema(
     title: {
       type: String,
       required: true,
+    },
+    brand: {
+      required: true,
+      type: String,
     },
     description: {
       type: String,
@@ -35,9 +39,11 @@ const productSchema = new Schema(
     },
     category: { type: Schema.Types.ObjectId, ref: "Category" },
     subCategory: { type: String },
-    details: Object,
-    sku: String,
-    active: { type: Boolean, default: true },
+    details: {
+      type: Object,
+      required: false,
+      default: null,
+    },
   },
   { timeseries: true, toJSON: { virtual: true } } // error
 );
