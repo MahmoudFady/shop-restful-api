@@ -66,5 +66,4 @@ productSchema.virtual("avgRating").get(function () {
     reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
   return avgRating.toFixed(2);
 });
-productSchema.index({ title: "text", description: "text" });
 module.exports = mongoose.model("Product", productSchema);
