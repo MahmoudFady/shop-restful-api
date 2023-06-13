@@ -17,7 +17,6 @@ const shippingRoutes = require("./routes/shipping.routes");
 const notFounMw = require("./middlewares/not-found.mw");
 const errMw = require("./middlewares/error.mw");
 
-app.use("/images", express.static("images/"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));

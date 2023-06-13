@@ -2,10 +2,19 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const discountSchema = new Schema(
   {
-    percentage: { type: Number, default: 0, min: 1, max: 100 },
-    expireDate: Date,
+    percentage: {
+      type: Number,
+      default: 0,
+      min: 1,
+      max: 100,
+      default: Math.floor(Math.random() * 76) + 5,
+    },
+    expireDate: {
+      type: Date,
+      default: Date.now() + 1000 * 60 * 60 * 10,
+    },
   },
-  { _id: false }
+  { _id: false, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 const productSchema = new Schema(
   {
@@ -24,28 +33,31 @@ const productSchema = new Schema(
     price: {
       type: Number,
       required: true,
-      index: true,
     },
-    stockCount: { type: Number, required: true, min: 0 },
+    stock: { type: Number, required: true, min: 0 },
     discount: {
       type: discountSchema,
-      default: null,
+      default: {
+        percentage: Math.floor(Math.random() * 76) + 5,
+        expireDate: Date.now() + 1000 * 60 * 60 * 10,
+      },
     },
-    thumbnails: [String],
-    image: String,
+    thumbnail: String,
+    images: [String],
     reviews: {
       type: [{ type: Schema.Types.ObjectId, ref: "Review" }],
-      default: null,
     },
-    category: { type: Schema.Types.ObjectId, ref: "Category" },
-    subCategory: { type: String },
+    category: {
+      type: String,
+      required: true,
+    },
     details: {
       type: Object,
       required: false,
-      default: null,
     },
   },
-  { timeseries: true, toJSON: { virtual: true } } // error
+
+  { toJSON: { virtuals: true }, toObject: { virtuals: true }, timeseries: true } // error
 );
 productSchema.virtual("priceAfterDiscount").get(function () {
   let { price, discount } = this;
@@ -59,9 +71,7 @@ discountSchema.virtual("isValid").get(function () {
 });
 productSchema.virtual("avgRating").get(function () {
   const reviews = this.reviews;
-  if (reviews.length === 0) {
-    return 0;
-  }
+  if (!reviews) return 0;
   const avgRating =
     reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
   return avgRating.toFixed(2);

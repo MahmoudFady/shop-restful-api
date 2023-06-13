@@ -25,7 +25,7 @@ const addressSchema = new mongoose.Schema(
       required: true,
     },
     postalCode: {
-      type: Number,
+      type: String,
       required: true,
     },
   },
@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema(
       immutable: true,
     },
     phone: {
-      type: Number,
+      type: String,
       unique: true,
       required: true,
     },
@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: ["Male", "Female"],
+      enum: ["femal", "male"],
     },
     image: {
       type: String,

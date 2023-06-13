@@ -1,24 +1,30 @@
 const productModel = require("../models/product.model");
 const errUtil = require("../utils/error.util");
-const productProjecton = "-thumbnails -reviews -details ";
-const getProductMainQuery = (criteria, query) => {
-  criteria = criteria || {};
-  let { pageIndex, pageSize } = query;
-  pageIndex = +pageIndex || 1;
-  pageSize = +pageSize || 20;
-  return productModel
+const productProjecton = "-images -description -reviews -details ";
+const getProductMainQuery = async (criteria = {}, query = {}) => {
+  const { pageIndex = 1, pageSize = 10 } = query;
+
+  const lengthPromise = productModel.countDocuments(criteria);
+  const productsPromise = productModel
     .find(criteria)
-    .populate({ path: "category", select: "name" })
     .select(productProjecton)
-    .skip(pageIndex - 1 * pageSize)
-    .limit(pageSize);
+    .skip((parseInt(pageIndex) - 1) * parseInt(pageSize))
+    .limit(parseInt(pageSize));
+
+  const [length, products] = await Promise.all([
+    lengthPromise,
+    productsPromise,
+  ]);
+
+  return { products, length };
 };
+
 module.exports.getAll = async (req, res, next) => {
   try {
-    const products = await getProductMainQuery({}, req.query);
+    const { products, length } = await getProductMainQuery({}, req.query);
     res.status(200).json({
       message: "get all products",
-      pageIndex,
+      length,
       products,
     });
   } catch (err) {
@@ -27,10 +33,9 @@ module.exports.getAll = async (req, res, next) => {
 };
 module.exports.getByPriceRange = async (req, res, next) => {
   try {
-    const { minPrice, maxPrice } = req.query;
-    minPrice = +minPrice || 1;
-    maxPrice = +maxPrice || 1000;
-    const products = await getProductMainQuery(
+    const { minPrice = 1, maxPrice = 1000 } = req.query;
+
+    const { products, length } = await getProductMainQuery(
       {
         $and: [{ price: { $gte: minPrice } }, { price: { $lte: maxPrice } }],
       },
@@ -38,6 +43,7 @@ module.exports.getByPriceRange = async (req, res, next) => {
     );
     res.status(200).json({
       message: "get products by price range",
+      length,
       products,
     });
   } catch (err) {
@@ -60,8 +66,10 @@ module.exports.getBySearch = async (req, res, next) => {
         { description: { $regex: target } },
       ],
     };
-    const products = await getProductMainQuery(criteria, req.query);
-    res.status(200).json({ message: "get products by search", products });
+    const { products, length } = await getProductMainQuery(criteria, req.query);
+    res
+      .status(200)
+      .json({ message: "get products by search", length, products });
   } catch (err) {
     next(err);
   }
@@ -69,8 +77,13 @@ module.exports.getBySearch = async (req, res, next) => {
 module.exports.getByCategory = async (req, res, next) => {
   try {
     const category = req.params["category"];
-    const products = await getProductMainQuery({ category }, req.query);
-    res.status(200).json({ message: "get products by category", products });
+    const { products, length } = await getProductMainQuery(
+      { category },
+      req.query
+    );
+    res
+      .status(200)
+      .json({ message: "get products by category", length, products });
   } catch (err) {
     next(err);
   }
@@ -83,11 +96,16 @@ module.exports.getByStockState = async (req, res, next) => {
         ? {
             stockCount: { $gte: 1 },
           }
-        : { stockCount: 0 };
-    const products = await getProductMainQuery(criteria, req.query).sort({
-      stockCount: 1,
+        : { stock: 0 };
+    const { products, length } = await getProductMainQuery(
+      criteria,
+      req.query
+    ).sort({
+      stock: 1,
     });
-    res.status(200).json({ message: "get all product in stcok", products });
+    res
+      .status(200)
+      .json({ message: "get all product in stcok", length, products });
   } catch (err) {
     next(err);
   }
@@ -114,19 +132,13 @@ module.exports.addOne = async (req, res, next) => {
 };
 module.exports.getById = async (req, res, next) => {
   try {
-    const product = await productModel
-      .findById(req.params["id"])
-      .populate({
-        path: "category",
-        select: "name",
-      })
-      .populate({
-        path: "reviews",
-        populate: {
-          path: "user",
-          select: "name image",
-        },
-      });
+    const product = await productModel.findById(req.params["id"]).populate({
+      path: "reviews",
+      populate: {
+        path: "user",
+        select: "name image",
+      },
+    });
     if (!product) errUtil("product does not exist", 404);
     res.status(200).json({ message: "get product by id", product });
   } catch (err) {
@@ -151,6 +163,46 @@ module.exports.updateOne = async (req, res, next) => {
     );
     if (!product) errUtil("product does not exist", 404);
     res.status(200).json({ message: "product updated", product });
+  } catch (err) {
+    next(err);
+  }
+};
+module.exports.filter = async (req, res, next) => {
+  try {
+    let {
+      category = "",
+      target = "",
+      minPrice = 1,
+      maxPrice = 10000,
+    } = req.query;
+    target = new RegExp(target, "i");
+    const searchCriteria = {
+      $or: [
+        { category: { $regex: target } },
+        {
+          brand: { $regex: target },
+        },
+        { title: { $regex: target } },
+        { description: { $regex: target } },
+      ],
+    };
+    const priceCriteria = {
+      $and: [{ price: { $gte: +minPrice } }, { price: { $lte: +maxPrice } }],
+    };
+    category = category == "all" ? "" : category;
+    category = RegExp(category, "i");
+    const categoryCriteria = { category: { $regex: category } };
+    const { products, length } = await getProductMainQuery(
+      {
+        $and: [searchCriteria, priceCriteria, categoryCriteria],
+      },
+      req.query
+    );
+    res.status(200).json({
+      message: "get product using filter",
+      length,
+      products,
+    });
   } catch (err) {
     next(err);
   }

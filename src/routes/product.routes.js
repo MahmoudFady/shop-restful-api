@@ -16,7 +16,10 @@ router
 
 router.route("/products/search").get(productController.getBySearch);
 router.route("/products/price").get(productController.getByPriceRange);
+router.route("/products/filter").get(productController.filter);
+
 router.route("/products/stock/:state").get(productController.getByStockState);
+
 router
   .route("/products/category/:category")
   .get(productController.getByCategory);
