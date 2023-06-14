@@ -23,7 +23,7 @@ module.exports.signin = async (req, res, next) => {
     const token = tokenUtil.create({ id: user._id, role: user.role });
     res.status(200).json({
       message: "signin success",
-      user,
+      userId: user._id,
       token,
     });
   } catch (err) {
@@ -39,7 +39,7 @@ module.exports.signup = async (req, res, next) => {
     const token = tokenUtil.create({ id: user._id });
     res.status(200).json({
       message: "signup success",
-      user,
+      userId: user._id,
       token,
     });
   } catch (err) {

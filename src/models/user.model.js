@@ -56,7 +56,7 @@ const userSchema = new mongoose.Schema(
     image: {
       type: String,
       required: true,
-      default: "https://examples.com/images/mahmoud.jpg",
+      default: "http://localhost:8080/uploads/user-avatar.png",
     },
     role: {
       type: String,
