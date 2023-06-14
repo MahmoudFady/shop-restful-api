@@ -14,6 +14,8 @@ const cartRoutes = require("./routes/cart.routes");
 const orderRoutes = require("./routes/order.routes");
 const orderItemsRoutes = require("./routes/orderItem.routes");
 const shippingRoutes = require("./routes/shipping.routes");
+const favsRoutes = require("./routes/favourite.routes");
+
 const notFounMw = require("./middlewares/not-found.mw");
 const errMw = require("./middlewares/error.mw");
 
@@ -31,6 +33,7 @@ app.use(orderItemsRoutes);
 app.use(shippingRoutes);
 app.use(ReviewRoutes);
 app.use(couponRoutes);
+app.use(favsRoutes);
 app.use(notFounMw);
 app.use(errMw);
 module.exports = app;
