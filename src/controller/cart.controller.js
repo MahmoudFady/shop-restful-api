@@ -1,70 +1,96 @@
-const Cart = require("../models/cart.model");
-const errUtil = require("../utils/error.util");
-
-// Create a new cart
-module.exports.createOne = async (req, res) => {
+const cartUseCase = require("../usercases/cart.usecase");
+module.exports.getCartByUserId = async (req, res, next) => {
   try {
-    const { user, products, totalAmount, totalPrice } = req.body;
-    const cart = new Cart({ user, products, totalAmount, totalPrice });
-    await cart.save();
-    res.status(201).json(cart);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create cart." });
+    const { id: userId } = req.user;
+    const cart = await cartUseCase.getCartByUserId(userId);
+    res.status(200).json({
+      message: "get user cart",
+      cart,
+    });
+  } catch (err) {
+    next(err)
   }
 };
-
-// Get all carts
-module.exports.getAll = async (req, res) => {
+module.exports.createOne = async (req, res, next) => {
   try {
-    const carts = await Cart.find()
-      .populate("user", "name email")
-      .populate("products.product", "name price");
-    res.status(200).json(carts);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch carts." });
+    const { id: userId } = req.user;
+
+    const { productId } = req.params;
+    const productPrice = +req.query["productPrice"];
+    const cart = await cartUseCase.createOne(userId, productId, productPrice);
+    res.status(200).json({
+      message: "cart created , product add to cart",
+      cart,
+    });
+  } catch (err) {
+    next(err)
   }
 };
-
-// Get a cart by ID
-module.exports.getOne = async (req, res) => {
+module.exports.deleteCartByUserId = async (req, res, next) => {
   try {
-    const cart = await Cart.findById(req.params.id)
-      .populate("products.product", "_id  price");
-    if (!cart) throw errUtil("Cart not found.", 404);
+    const { id: userId } = req.user;
 
-    res.status(200).json(cart);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch the cart." });
+    const cart = await cartUseCase.deleteCartByUserId(userId);
+    res.status(200).json({
+      message: "product removed",
+      cart,
+    });
+  } catch (err) {
+    next(err)
   }
 };
-
-// Update a cart by ID
-module.exports.updateOne = async (req, res) => {
+module.exports.pushProduct = async (req, res, next) => {
   try {
-    const { user, products, totalAmount, totalPrice } = req.body;
-    const cart = await Cart.findByIdAndUpdate(
-      req.params.id,
-      { user, products, totalAmount, totalPrice },
-      { new: true }
-    )
-      .populate("user", "name email")
-      .populate("products.product", "name price");
-    if (!cart) throw errUtil("Cart not found.", 404);
+    const { id: userId } = req.user;
 
-    res.status(200).json(cart);
-  } catch (error) {
-    next(error);
+    const { productId } = req.params;
+    const productPrice = +req.query["productPrice"];
+    const cart = await cartUseCase.pushProduct(userId, productId, productPrice);
+    res.status(200).json({
+      message: "product add to cart",
+      cart,
+    });
+  } catch (err) {
+    next(err)
   }
 };
-
-// Delete a cart by ID
-module.exports.deleteOne = async (req, res) => {
+module.exports.removeProduct = async (req, res, next) => {
   try {
-    const cart = await Cart.findByIdAndDelete(req.params.id);
-    if (!cart) throw errUtil("Cart not found.", 404);
-
-    res.status(204).json({ message: "Cart deleted successfully" });
-  } catch (error) {
-    next(error);
+    const { id: userId } = req.user;
+    const { productId } = req.params;
+    const productPrice = +req.query["productPrice"];
+    const productQuantity = +req.query["productQuantity"];
+    const cart = await cartUseCase.removeProduct(
+      userId,
+      productId,
+      productPrice,
+      productQuantity
+    );
+    res.status(200).json({
+      message: "product removed form cart",
+      cart,
+    });
+  } catch (err) {
+    next(err)
+  }
+};
+module.exports.updateProductQuan = async (req, res, next) => {
+  try {
+    const { id: userId } = req.user;
+    const { productId } = req.params;
+    let increaser = +req.query["increaser"];
+    let productPrice = +req.query["productPrice"];
+    const cart = await cartUseCase.updateProductQuantity(
+      userId,
+      productId,
+      productPrice,
+      increaser
+    );
+    res.status(200).json({
+      message: "product quantity updated",
+      cart,
+    });
+  } catch (err) {
+    next(err)
   }
 };
