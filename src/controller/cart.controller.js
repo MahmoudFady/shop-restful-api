@@ -29,8 +29,7 @@ module.exports.getAll = async (req, res) => {
 module.exports.getOne = async (req, res) => {
   try {
     const cart = await Cart.findById(req.params.id)
-      .populate("user", "name email")
-      .populate("products.product", "name price");
+      .populate("products.product", "_id  price");
     if (!cart) throw errUtil("Cart not found.", 404);
 
     res.status(200).json(cart);
