@@ -23,13 +23,14 @@ module.exports.deleteCartByUserId = (userId) => {
   return Cart.findOneAndDelete({ user: userId });
 };
 module.exports.pushProduct = (userId, productId, price) => {
-  return Cart.updateOne(
+  return Cart.findOneAndUpdate(
     { user: userId },
     {
       $push: { products: { product: productId, quantity: 1 } },
       $inc: { totalPrice: price },
-    }
-  );
+    },
+    { new: true }
+  ).populate(cartPopulateOptions);
 };
 module.exports.removeProduct = (userId, productId, price) => {
   return Cart.findOneAndUpdate(
@@ -39,7 +40,7 @@ module.exports.removeProduct = (userId, productId, price) => {
       $inc: { totalPrice: -price },
     },
     { new: true }
-  );
+  ).populate(cartPopulateOptions);
 };
 module.exports.updateProductQuantity = (userId, productId, price, quan) => {
   return Cart.findOneAndUpdate(
@@ -53,5 +54,5 @@ module.exports.updateProductQuantity = (userId, productId, price, quan) => {
     {
       new: true,
     }
-  );
+  ).populate(cartPopulateOptions);
 };

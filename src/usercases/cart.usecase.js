@@ -22,9 +22,6 @@ module.exports.removeProduct = async (
     productId,
     productPrice * productQuantity
   );
-  if (updatedCart.totalPrice === 0) {
-    return this.deleteCartByUserId(userId);
-  }
   return updatedCart;
 };
 module.exports.updateProductQuantity = async (
@@ -39,8 +36,5 @@ module.exports.updateProductQuantity = async (
     productPrice,
     quan
   );
-  if (updatedCart.totalPrice === 0 && quan === -1) {
-    return this.deleteCartByUserId(userId);
-  }
   return updatedCart;
 };
