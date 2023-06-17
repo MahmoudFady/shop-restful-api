@@ -7,7 +7,7 @@ router
   .all(checkAuth)
   .get(cartController.getCartByUserId)
   .delete(cartController.deleteCartByUserId);
-router.post("cart/new/:productId", checkAuth, cartController.createOne);
+router.post("/cart/new/:productId", checkAuth, cartController.createOne);
 router
   .route("/cart/:productId")
   .all(checkAuth)
